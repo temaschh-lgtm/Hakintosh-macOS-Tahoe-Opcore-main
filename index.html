@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>macOS Tahoe — Web Emulator</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="lockscreen.css" />
+  <link rel="stylesheet" href="menubar.css" />
+  <link rel="stylesheet" href="window-minimize.css" />
+  <link rel="stylesheet" href="menubar-apple-functions.css" />
+  <link rel="stylesheet" href="desktop.css" />
+  <link rel="stylesheet" href="apps/notes/notes.css" />
+  <link rel="stylesheet" href="apps/finder/finder.css" />
+  <link rel="stylesheet" href="apps/photos/photos.css" />
+  <link rel="stylesheet" href="apps/reminders/reminders.css" />
+  <link rel="stylesheet" href="apps/music/music.css" />
+  <link rel="stylesheet" href="apps/videos/video.css" />
+  <link rel="stylesheet" href="icon-pack-manager.css" />
+</head>
+<body>
+  <div id="desktop">
+    <div id="wallpaperLayer"></div>
+    <div id="menuBar"></div>
+    <div id="windows-area"></div>
+    <div id="dockContainer">
+      <div id="dock"></div>
+    </div>
+  </div>
+
+  <script src="lockscreen.js"></script>
+  <script src="window-manager.js"></script>
+
+  <!-- Finder -->
+  <script src="apps/finder/finder-icons.js"></script>
+  <script src="apps/finder/finder-fs.js"></script>
+  <script src="apps/trash.js"></script>
+
+  <!-- Notes -->
+  <script src="apps/notes/notes-store.js"></script>
+  <script src="apps/notes/notes-editor.js"></script>
+  <script src="apps/notes/notes-app.js"></script>
+
+  <!-- Finder UI -->
+  <script src="apps/finder/finder-sidebar.js"></script>
+  <script src="apps/finder/finder-toolbar.js"></script>
+  <script src="apps/finder/finder-grid.js"></script>
+  <script src="apps/finder/finder-preview.js"></script>
+  <script src="apps/finder/finder-app.js"></script>
+
+  <!-- Photos -->
+  <script src="apps/photos/photos-store.js"></script>
+  <script src="apps/photos/photos-sidebar.js"></script>
+  <script src="apps/photos/photos-grid.js"></script>
+  <script src="apps/photos/photos-lightbox.js"></script>
+  <script src="apps/photos/photos-app.js"></script>
+
+  <!-- Reminders -->
+  <script src="apps/reminders/reminders-store.js"></script>
+  <script src="apps/reminders/reminders-sidebar.js"></script>
+  <script src="apps/reminders/reminders-item.js"></script>
+  <script src="apps/reminders/reminders-detail.js"></script>
+  <script src="apps/reminders/reminders-app.js"></script>
+
+  <!-- Music -->
+  <script src="apps/music/music-store.js"></script>
+  <script src="apps/music/music-player.js"></script>
+  <script src="apps/music/music-radio.js"></script>
+  <script src="apps/music/music-sidebar.js"></script>
+  <script src="apps/music/music-content.js"></script>
+  <script src="apps/music/music-playbar.js"></script>
+  <script src="apps/music/music-app.js"></script>
+
+  <!-- Videos -->
+  <script src="apps/videos/video-store.js"></script>
+  <script src="apps/videos/video-player-engine.js"></script>
+  <script src="apps/videos/video-app.js"></script>
+
+  <!-- Icon pack manager -->
+  <script src="icon-pack-manager.js"></script>
+
+  <!-- Desktop manager -->
+  <script src="desktop-manager.js"></script>
+
+  <!-- Menubar + Dock -->
+  <script src="menubar.js"></script>
+  <script src="dock.js"></script>
+
+  <!-- Apple menu functions — must load AFTER menubar.js -->
+  <script src="menubar-apple-functions.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (typeof window.__initDesktopManager === "function") {
+        window.__initDesktopManager();
+      }
+    });
+
+    (function() {
+      function _patchUnlock() {
+        const ls = document.getElementById("lockScreen") ||
+                   document.querySelector(".lock-screen, #lockscreen, [id*='lock']");
+        if (!ls) { setTimeout(_patchUnlock, 400); return; }
+        const obs = new MutationObserver(() => {
+          const hidden = ls.style.display === "none" ||
+                         ls.style.opacity === "0" ||
+                         ls.style.pointerEvents === "none" ||
+                         ls.classList.contains("hidden") ||
+                         ls.classList.contains("gone");
+          if (hidden) {
+            if (typeof window.__animateMenuBar === "function") window.__animateMenuBar();
+            if (typeof window.__animateDock    === "function") window.__animateDock();
+          }
+        });
+        obs.observe(ls, { attributes: true, attributeFilter: ["style","class"] });
+      }
+      setTimeout(_patchUnlock, 800);
+    })();
+  </script>
+</body>
+</html>
